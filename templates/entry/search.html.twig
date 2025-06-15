@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Wyszukiwanie:
+	{{ template.displayName }}
+{% endblock %}
+
+{% block body %}
+	<div class="row">
+		<div class="col-md-9 search-form-container">
+			<h2>Wyszukiwanie w szablonie:
+				{{ template.displayName }}</h2>
+
+			{% if form|length > 0 %}
+				{{ form_start(form) }}
+				<div class="row">
+					{% for field in form %}
+						<div class="col-md-6 mb-3">
+							{{ form_row(field) }}
+						</div>
+					{% endfor %}
+				</div>
+				<button type="submit" class="btn btn-primary w-100">Szukaj</button>
+				<a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) }}" class="btn btn-secondary">Resetuj</a>
+				{{ form_end(form) }}
+			{% else %}
+				<a href="{{ path('template_add_field', { id: template.id }) }}" class="btn btn-secondary">Dodaj pola do szablonu</a>
+			{% endif %}
+
+			<hr>
+
+			{% if entries is empty %}
+				<p>Brak wyników spełniających kryteria.</p>
+			{% else %}
+				<div class="list-group">
+					{% for entry in entries %}
+						<div class="list-group-item">
+							<table class="table table-striped table-sm mt-3">
+								<tbody>
+									{% for val in entry.entryFieldValues %}
+										{% if val.value is not empty %}
+											<tr>
+												<td>{{ val.templateField.displayName }}</td>
+												<td>{{ val.value }}</td>
+											</tr>
+										{% endif %}
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+
+		<div class="col-md-3">
+			<h3>Szablony</h3>
+			<ul class="list-group">
+				{% for tmpl in templates %}
+					<li class="list-group-item border-0 {{ tmpl.id == template.id ? 'active' : '' }}">
+						<a href="{{ path('entry_search', { systemName: tmpl.systemName }) }}" class="text-decoration-none {{ tmpl.id == template.id ? ' text-white' : '' }}">
+							{{ tmpl.displayName }}
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+
+{% endblock %}
+

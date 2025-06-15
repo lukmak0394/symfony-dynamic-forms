@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nowy wpis{% endblock %}
+
+{% block body %}
+<h1>Wybierz szablon</h1>
+<table class="table table-striped data-table mt-3">
+    <thead>
+        <tr>
+            <th>Szablon</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in templates %}
+            <tr>
+                <td>
+                    <a href="{{ path('entry_fill', { template_id: template.id }) }}">
+                        {{ template.displayName }}
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Szablony
+{% endblock %}
+
+{% block body %}
+	<h1>Lista szablonów</h1>
+    <div class="d-flex justify-content-end align-items-center mb-3">
+            <a href="{{ path('template_new') }}" class="btn btn-success btn-sm">Dodaj nowy szablon</a>
+    </div>
+    {% if app.session.flashBag.has('success') %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if app.session.flashBag.has('error') %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+	{% if templates is not empty %}
+		<table id="templates-table" class="table table-striped data-table mt-3">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Nazwa systemowa</th>
+					<th>Nazwa wyświetlana</th>
+					<th>Aktywny (Tak/Nie)</th>
+					<th>Akcje</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for template in templates %}
+					<tr>
+						<td>{{ template.id }}</td>
+						<td>{{ template.systemName }}</td>
+						<td>{{ template.displayName }}</td>
+						<td>{{ template.isActive ? 'Tak' : 'Nie' }}</td>
+						<td>
+							<a href="{{ path('template_edit', { id: template.id }) }}" class="btn btn-primary btn-sm">Edytuj</a>
+							<button class="btn btn-danger btn-sm" data-id="{{ template.id }}" data-name="{{ template.displayName }}" onclick="openDeleteModal(this)">Usuń</button>
+							<a href="{{ path('template_add_field', { id: template.id }) }}" class="btn btn-secondary btn-sm">Dodaj pola</a>
+							<a href="{{ path('template_fields', { id: template.id }) }}" class="btn btn-info btn-sm">Lista pól</a>
+							<a href="{{ path('entry_search', { systemName: template.systemName }) }}" class="btn btn-info btn-sm">Szukaj</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		{% set msg = 'Nie zdefiniowano żadnych szablonów' %}
+		{% do app.session.flashBag.add('info', msg) %}
+		{% for message in app.flashes('info') %}
+			<div class="d-flex justify-content-between align-items-center">
+				<span>{{ message }}</span>
+			</div>
+		{% endfor %}
+	{% endif %}
+
+	{% if templates is not empty %}
+		<div id="deleteModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#00000099; justify-content:center; align-items:center;">
+			<div style="background:white; padding:1.5rem; border-radius:0.5rem; min-width:300px; max-width:400px;">
+				<p id="deleteModalMessage"></p>
+				<form method="post" id="deleteForm">
+					<input type="hidden" name="_token" id="deleteToken" value="">
+					<button type="submit" class="btn btn-danger">Tak</button>
+					<button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Nie</button>
+				</form>
+			</div>
+		</div>
+
+		<script src="{{ asset('js/template-delete-modal.js') }}"></script>
+        <script src="{{ asset('js/templates-data-table.js') }}"></script>
+		<script>
+			const csrfTokens = {
+                {% for template in templates %}
+                    {{ template.id }} : '{{ csrf_token('delete_template_' ~ template.id) }}',
+                {% endfor %}
+            };
+            window.templateDeleteCsrfTokens = csrfTokens;
+		</script>
+	{% endif %}
+{% endblock %}
+

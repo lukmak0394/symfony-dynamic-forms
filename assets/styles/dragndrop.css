@@ -1,0 +1,26 @@
+/* Styl dla całego wiersza, który można przeciągać */
+.sortable-row {
+    cursor: grab;
+}
+
+.sortable-row:active {
+    cursor: grabbing;
+}
+
+/* Styl podświetlający aktualnie przeciągany wiersz */
+.sortable-ghost {
+    opacity: 0.5;
+    background-color: #f0f0f0;
+}
+
+/* Styl docelowej pozycji */
+.sortable-chosen {
+    background-color: #d0f0ff;
+    transition: background-color 0.2s;
+}
+
+/* Ikona przeciągania */
+.drag-handle {
+    cursor: grab;
+    padding-right: 0.5rem;
+}
