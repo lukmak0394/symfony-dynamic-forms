@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% set header_title = 'Lista pól szablonu' %}
+{% set header_back_link = path('template_list') %}
+{% set header_back_link_title = 'Powrót do listy szablonów' %}
+
+{% block body %}
+
+    <a href="{{ path('template_add_field', { id: template.id }) }}" class="btn btn-success mb-3">Dodaj nowe pole</a>
+
+    <input type="hidden" id="reorder-url" value="{{ path('template_reorder_fields', { id: template.id }) }}">
+
+    {% if app.session.flashBag.has('success') %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if app.session.flashBag.has('error') %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if fields is not empty %}
+        <table id="fields-list-table" class="table table-striped data-table mt-3">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa systemowa</th>
+                    <th>Nazwa wyświetlana</th>
+                    <th>Typ</th>
+                    <th>Wymagane (Tak / Nie)</th>
+                </tr>
+            </thead>
+            <tbody id="sortable-fields">
+                {% for field in fields %}
+                    <tr class="sortable-row">
+                        <td style="display: none;"><span class="field-id">{{ field.id }}</span></td>
+                        <td>{{ field.id }}</td>
+                        <td>{{ field.systemName }}</td>
+                        <td>{{ field.displayName }}</td>
+                        <td>{{ field.type }}</td>
+                        <td>{{ field.required ? 'Tak' : 'Nie' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">Brak zdefiniowanych pól w tym szablonie.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        {% set msg = 'Ten szablon nie zawiera żadnych pól.' %}
+        {% do app.session.flashBag.add('info', msg) %}
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <script src="{{ asset('js/template-fields-sort.js') }}"></script>
+{% endblock %}

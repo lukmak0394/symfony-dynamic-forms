@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Wszystkie wpisy
+{% endblock %}
+
+{% block body %}
+	<h1>Wpisy</h1>
+ 	<div class="d-flex justify-content-end align-items-center mb-3">
+            <a href="{{ path('entry_new') }}" class="btn btn-success btn-sm">Dodaj nowy wpis</a>
+    </div>
+	<form method="get" id="entries-list-template-filter-form">
+		<select name="template_id" onchange="this.form.submit()">
+			<option value="">– Wybirz szablon –</option>
+			{% for template in templates %}
+				<option value="{{ template.id }}" {% if template.id == current_template_id %} selected {% endif %}>
+					{{ template.displayName }}
+				</option>
+			{% endfor %}
+		</select>
+	</form>
+	{% if entries is not empty %}
+		<table id="entries-list-table" class="table table-striped data-table mt-3">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Szablon</th>
+					<th>Akcje</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for entry in entries %}
+					<tr>
+						<td>{{ entry.id }}</td>
+						<td>{{ entry.template.displayName }}</td>
+						<td>
+							<a href="{{ path('entry_show', { id: entry.id }) }}" class="btn btn-primary btn-sm">Zobacz</a>
+							<a href="{{ path('entry_edit', { id: entry.id }) }}"  class="btn btn-secondary btn-sm">Edytuj</a>
+						</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td colspan="3">Nie znaleziono wpisów</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		{% set msg = 'Nie zdefiniowano żadnych wpisów' %}
+		{% do app.session.flashBag.add('info', msg) %}
+		{% for message in app.flashes('info') %}
+			<div class="d-flex justify-content-between align-items-center">
+				<span>{{ message }}</span>
+			</div>
+		{% endfor %}
+	{% endif %}
+
+    <script src="{{ asset('js/entries-data-table.js') }}"></script>
+{% endblock %}
+

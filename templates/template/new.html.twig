@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% set header_title = 'Utwórz nowy szablon' %}
+{% set header_back_link = path('template_list') %}
+{% set header_back_link_title = 'Powrót do listy szablonów' %}
+
+{% block title %}Nowy szablon{% endblock %}
+
+{% block body %}
+
+{{ form_start(form) }}
+    {{ form_row(form.systemName) }}
+    {{ form_row(form.displayName) }}
+    {{ form_row(form.is_active) }}
+    <button class="btn btn-primary mt-3">Zapisz</button>
+{{ form_end(form) }}
+{% endblock %}

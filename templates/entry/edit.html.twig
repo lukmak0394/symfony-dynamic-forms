@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edytuj wpis{% endblock %}
+
+{% block body %}
+<h1>Edytuj wpis ({{ entry.template.displayName }})</h1>
+
+<form method="POST" id="entry-edit-form">
+    <label for="template-select">Zmień szablon:</label>
+    <select id="template-select" name="template_id">
+        {% for tmpl in templates %}
+            <option value="{{ tmpl.id }}" {{ tmpl.id == entry.template.id ? 'selected' : '' }}>
+                {{ tmpl.displayName }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <div id="dynamic-fields">
+        {{ form_start(form) }}
+            {% for field in form %}
+                {{ form_row(field) }}
+            {% endfor %}
+            <button class="btn btn-success mt-3" type="submit">Zapisz</button>
+        {{ form_end(form) }}
+    </div>
+</form>
+
+<script src="{{ asset('js/dynamic-form.js') }}"></script>
+<script>
+    window.entryFieldValues = {{ entry.entryFieldValues|json_encode|raw }};
+    document.getElementById('template-select').addEventListener('change', function () {
+        const form = document.getElementById('entry-edit-form');
+        form.submit();
+    });
+</script>
+{% endblock %}

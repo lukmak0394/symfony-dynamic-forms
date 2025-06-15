@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% set header_title = 'Podgląd wpisu' %}
+{% set header_back_link = path('entry_list') %}
+{% set header_back_link_title = 'Powrót do listy wpisów' %}
+
+{% block title %}Wpis #{{ entry.id }}{% endblock %}
+
+{% block body %}
+<table id="templates-table" class="table table-striped data-table mt-3">
+    <tbody>
+    {% for field in fields %}
+        {% set value = values[field.id]|default(null) %}
+        {% if value is not empty %}
+            <tr>
+                <td style="padding: 4px 10px; border-bottom: 1px solid #ccc;">
+                    <strong>{{ field.displayName }}</strong>
+                </td>
+                <td style="padding: 4px 10px; border-bottom: 1px solid #ccc;">
+                    {% set type = field.type %}
+                    {% set params = field.params|default({}) %}
+
+                    {% if type == 'date' %}
+                        {{ value|date('Y-m-d') }}
+
+                    {% elseif type == 'datetime' %}
+                        {{ value|date('Y-m-d H:i:s') }}
+
+                    {% elseif type == 'cost' %}
+                        {{ value|number_format(2, '.', ' ') }}
+
+                    {% elseif type == 'number' %}
+                        {{ value|number_format(0, '.', ' ') }}
+
+                    {% elseif type == 'email' %}
+                        <a href="mailto:{{ value }}">{{ value }}</a>
+
+                    {% elseif type == 'url' %}
+                        <a href="{{ value }}" target="_blank" rel="noopener noreferrer">{{ value }}</a>
+
+                    {% elseif type == 'select' %}
+                        {{ params.options[value]|default(value) }}
+
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('entry_edit', { id: entry.id }) }}" class="btn btn-primary btn-sm">Edytuj</a>
+{% endblock %}
