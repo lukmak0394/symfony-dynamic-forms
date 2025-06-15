@@ -25,7 +25,6 @@ class DynamicSearchFormType extends AbstractType
                     break;
 
                 case 'date':
-                case 'datetime':
                     $builder->add($key . '_from', Type\DateType::class, [
                         'widget' => 'single_text',
                         'required' => false,
@@ -33,6 +32,19 @@ class DynamicSearchFormType extends AbstractType
 
                     ]);
                     $builder->add($key . '_to', Type\DateType::class, [
+                        'widget' => 'single_text',
+                        'required' => false,
+                        'label' => $field->getDisplayName() . ' (do)',
+                    ]);
+                    break;
+                case 'datetime':
+                    $builder->add($key . '_from', Type\DateTimeType::class, [
+                        'widget' => 'single_text',
+                        'required' => false,
+                        'label' => $field->getDisplayName() . ' (od)',
+
+                    ]);
+                    $builder->add($key . '_to', Type\DateTimeType::class, [
                         'widget' => 'single_text',
                         'required' => false,
                         'label' => $field->getDisplayName() . ' (do)',
