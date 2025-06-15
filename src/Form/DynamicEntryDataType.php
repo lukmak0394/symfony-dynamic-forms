@@ -68,6 +68,12 @@ class DynamicEntryDataType extends AbstractType
                 $options['constraints'][] = new Assert\Type('numeric');
             }
 
+            if ($field->getType() === 'datetime') {
+                $options['widget'] = 'single_text';
+                $options['html5'] = true;
+                $options['input'] = 'datetime';
+            }
+
             $builder->add($name, $type, $options);
         }
     }

@@ -24,7 +24,7 @@
                         {{ value|date('Y-m-d') }}
 
                     {% elseif type == 'datetime' %}
-                        {{ value|date('Y-m-d H:i') }}
+                        {{ value|date('Y-m-d H:i:s') }}
 
                     {% elseif type == 'cost' %}
                         {{ value|number_format(2, '.', ' ') }}

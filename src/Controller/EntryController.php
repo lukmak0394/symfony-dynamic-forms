@@ -30,7 +30,7 @@ class EntryController extends AbstractController
 
         $templates = $templateRepo->findBy(['is_active' => true]);
 
-        if(!$templates) {
+        if (!$templates) {
             $this->addFlash('info', 'Nie znaleziono aktywnych szablonów. Utwórz szablon przed dodaniem wpisu.');
             return $this->redirectToRoute('template_new');
         }
@@ -72,7 +72,7 @@ class EntryController extends AbstractController
                 $value = $form->get($submitted_name)->getData();
 
                 if (empty($value)) {
-                    if(!$field->isRequired()) {
+                    if (!$field->isRequired()) {
                         continue;
                     }
 
@@ -83,7 +83,18 @@ class EntryController extends AbstractController
                 $fieldValue = new EntryFieldValue();
                 $fieldValue->setEntry($entry);
                 $fieldValue->setTemplateField($field);
-                $fieldValue->setValue(is_scalar($value) ? (string) $value : json_encode($value));
+
+                if ($value instanceof \DateTimeInterface) {
+                    $value = $field->getType() === 'date'
+                        ? $value->format('Y-m-d')
+                        : $value->format('Y-m-d H:i:s');
+                } elseif (is_array($value)) {
+                    $value = json_encode($value);
+                } else {
+                    $value = (string) $value;
+                }
+
+                $fieldValue->setValue($value);
                 $entry->addEntryFieldValue($fieldValue);
                 $em->persist($fieldValue);
             }
@@ -119,7 +130,7 @@ class EntryController extends AbstractController
         if ($template_id_from_form && (int) $template_id_from_form !== $current_template_id) {
             $new_template = $templateRepo->find($template_id_from_form);
 
-            if(!$new_template) {
+            if (!$new_template) {
                 $this->addFlash('error', 'Nie znaleziono szablonu o podanym ID.');
                 return $this->redirectToRoute('entry_edit', ['id' => $entry->getId()]);
             }
@@ -159,9 +170,9 @@ class EntryController extends AbstractController
         ]);
 
         $form->handleRequest($request);
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             foreach ($entry->getEntryFieldValues() as $old) {
                 $em->remove($old);
             }
@@ -170,26 +181,33 @@ class EntryController extends AbstractController
                 $submitted_name = 'field_' . $field->getId();
                 $value = $form->get($submitted_name)->getData();
 
-                if(empty($value)) {
-                    if(!$field->isRequired()) {
+                if (empty($value)) {
+                    if (!$field->isRequired()) {
                         continue;
                     }
                     continue;
                 }
 
+                // Normalizacja wartości przed zapisem
                 if ($value instanceof \DateTimeInterface) {
-                    $format = $field->getType() === 'date' ? 'Y-m-d' : 'Y-m-d H:i:s';
-                    $value = $value->format($format);
+                    $value = $field->getType() === 'date'
+                        ? $value->format('Y-m-d')
+                        : $value->format('Y-m-d H:i:s');
+                } elseif (is_array($value)) {
+                    $value = json_encode($value);
+                } else {
+                    $value = (string) $value;
                 }
 
                 $field_value = new EntryFieldValue();
                 $field_value->setEntry($entry);
                 $field_value->setTemplateField($field);
-                $field_value->setValue(is_scalar($value) ? (string) $value : json_encode($value));
+                $field_value->setValue($value);
 
                 $entry->addEntryFieldValue($field_value);
                 $em->persist($field_value);
             }
+
 
             $em->flush();
 
