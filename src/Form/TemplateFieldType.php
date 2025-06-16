@@ -40,7 +40,7 @@ class TemplateFieldType extends AbstractType
                     'Data' => 'date',
                     'Data + czas' => 'datetime',
                     'Liczba' => 'number',
-                    'Koszt' => 'koszt',
+                    'Koszt' => 'cost',
                     'E-mail' => 'email',
                     'URL' => 'url',
                     'Lista wyboru (select)' => 'select',
