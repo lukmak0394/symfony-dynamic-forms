@@ -57,11 +57,7 @@ class TemplateController extends AbstractController
             $em->persist($field);
             $em->flush();
             $this->addFlash('success', 'Pole zostało dodane do szablonu.');
-
-            // form reset
-            $field = new TemplateField();
-            $field->setTemplate($template);
-            $form = $this->createForm(TemplateFieldType::class, $field);
+            return $this->redirectToRoute('template_add_field', ['id' => $template->getId()]);
         }
 
         return $this->render('template/add_field.html.twig', [
@@ -78,7 +74,6 @@ class TemplateController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-
             return $this->redirectToRoute('template_list');
         }
 
