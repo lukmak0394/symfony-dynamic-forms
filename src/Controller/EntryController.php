@@ -70,7 +70,7 @@ class EntryController extends AbstractController
             foreach ($template->getTemplateFields() as $field) {
                 $submitted_name = 'field_' . $field->getId();
                 $value = $form->get($submitted_name)->getData();
-
+                
                 if (empty($value)) {
                     if (!$field->isRequired()) {
                         continue;
@@ -121,11 +121,11 @@ class EntryController extends AbstractController
         TemplateRepository $templateRepo
     ): Response {
 
-        $template_id_from_form = $request->request->get('template_id');
+        $template_id_from_form = (int) $request->request->get('selected_template_id');
         $current_template_id = $entry->getTemplate()->getId();
 
-        $template = null;
-        $template_fields = [];
+        $template = $entry->getTemplate();
+        $template_fields = $template->getTemplateFields();
 
         if ($template_id_from_form && (int) $template_id_from_form !== $current_template_id) {
             $new_template = $templateRepo->find($template_id_from_form);
@@ -141,11 +141,8 @@ class EntryController extends AbstractController
             $em->refresh($entry);
             $template = $new_template;
             $template_fields = $template->getTemplateFields();
-        } else {
-            $template = $entry->getTemplate();
-            $template_fields = $template->getTemplateFields();
-        }
-
+        } 
+       
         $data = [];
         foreach ($entry->getEntryFieldValues() as $value) {
             $field = $value->getTemplateField();
@@ -172,13 +169,14 @@ class EntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+      
             foreach ($entry->getEntryFieldValues() as $old) {
                 $em->remove($old);
             }
 
             foreach ($template_fields as $field) {
                 $submitted_name = 'field_' . $field->getId();
+      
                 $value = $form->get($submitted_name)->getData();
 
                 if (empty($value)) {
@@ -187,8 +185,6 @@ class EntryController extends AbstractController
                     }
                     continue;
                 }
-
-                // Normalizacja wartości przed zapisem
                 if ($value instanceof \DateTimeInterface) {
                     $value = $field->getType() === 'date'
                         ? $value->format('Y-m-d')
@@ -282,7 +278,6 @@ class EntryController extends AbstractController
                 $key = 'field_' . $field->getId();
 
                 switch ($field->getType()) {
-                    case 'date':
                     case 'date':
                     case 'datetime':
                         $from = $data[$key . '_from'] ?? null;
