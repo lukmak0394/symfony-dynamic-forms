@@ -1,48 +1,70 @@
 $(document).ready(() => {
     const templateSelect = $('#template-select');
-    const fieldWrapper = $('#form-fields');
+    const form = $('#dynamic-fields form[name="dynamic_entry_data"]');
     const entryValues = window.entryFieldValues || [];
 
+    const prepareSelectField = (value, params) => {
+        input = $('<select>');
+        if(params && Array.isArray(params)) {
+            params.forEach(opt => {
+                const option = $('<option>').val(opt).text(opt);
+                (opt === value) ? option.prop('selected', true) : option.prop('selected', false);
+                input.append(option);
+            });
+        }
+        return input;
+    }
+
+    const prepareInputField = (field, value) => {
+        if (field.type === 'date') {
+            return $('<input>').attr({ type: 'date', value });
+        }
+        if (field.type === 'datetime') {
+            return $('<input>').attr({ type: 'datetime-local', value });
+        }
+        return $('<input>').attr({ type: 'text', value });
+    };
+
     const renderField = (field, existingValues, container) => {
+
         const safeValues = Array.isArray(existingValues) ? existingValues : [];
         const valueObj = safeValues.find(v => v.templateField.id === field.id);
         const value = valueObj ? valueObj.value : '';
 
-        const wrapper = $('<div>').css('margin-bottom', '1rem');
+        const wrapper = $('<div>');
         const label = $('<label>').text(field.displayName);
         wrapper.append(label);
 
-        let $input;
-        if (field.type === 'select') {
-            $input = $('<select>');
-            try {
-                (field.params || []).forEach(opt => {
-                    const $option = $('<option>').val(opt).text(opt);
-                    if (opt === value) $option.prop('selected', true);
-                    $input.append($option);
-                });
-            } catch (e) {
-                console.error('Error parsing select options:', e);
-            }
-        } else {
-            const type = field.type === 'date' ? 'date'
-                      : field.type === 'datetime' ? 'datetime-local'
-                      : 'text';
-            $input = $('<input>').attr({ type, value });
+        let input;
+
+        switch (field.type) {
+            case 'text':
+                input = prepareInputField(field, value);
+                break;
+            case 'select':
+                input = prepareSelectField(value, field.params);
+                break;
+            case 'date':
+            case 'datetime':
+                input = prepareInputField(field, value);
+                break;
+            default:
+                console.warn(`Nieobsługiwany typ pola: ${field.type}`);
+                return;
         }
+       
+        input.attr('name', `dynamic_entry_data[field_${field.id}]`);
+        input.prop('required', field.required);
 
-        $input.attr('name', `field_${field.id}`);
-        if (field.required) $input.prop('required', true);
-
-        wrapper.append('<br>').append($input);
-        container.append(wrapper);
+        wrapper.append(input);
+        container.find('button[type="submit"]').before(wrapper); 
     };
 
     const loadFields = (templateId) => {
         $.getJSON(`/${window.locale}/api/templates/${templateId}/fields`)
             .done(fields => {
-                fieldWrapper.empty();
-                fields.forEach(field => renderField(field, entryValues, fieldWrapper));
+                form.children('div').not(':has(button[type="submit"])').remove();
+                fields.forEach(field => renderField(field, entryValues, form));
             })
             .fail(err => {
                 console.error('Błąd podczas ładowania pól szablonu:', err);
