@@ -70,7 +70,7 @@ class EntryController extends AbstractController
             foreach ($template->getTemplateFields() as $field) {
                 $submitted_name = 'field_' . $field->getId();
                 $value = $form->get($submitted_name)->getData();
-
+                
                 if (empty($value)) {
                     if (!$field->isRequired()) {
                         continue;
@@ -282,7 +282,6 @@ class EntryController extends AbstractController
                 $key = 'field_' . $field->getId();
 
                 switch ($field->getType()) {
-                    case 'date':
                     case 'date':
                     case 'datetime':
                         $from = $data[$key . '_from'] ?? null;
