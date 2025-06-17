@@ -25,6 +25,7 @@ $(document).ready(() => {
         return $('<input>').attr({ type: 'text', value });
     };
 
+
     const renderField = (field, existingValues, container) => {
 
         const safeValues = Array.isArray(existingValues) ? existingValues : [];
@@ -47,6 +48,18 @@ $(document).ready(() => {
             case 'date':
             case 'datetime':
                 input = prepareInputField(field, value);
+                break;
+            case 'cost':
+                input = prepareInputField(field, value);
+                break;
+            case 'number':
+                input = prepareInputField(field, value);
+                break;
+            case 'email':
+                input = prepareInputField(value);
+                break;
+            case 'url':
+                input = prepareInputField(value);
                 break;
             default:
                 console.warn(`Nieobsługiwany typ pola: ${field.type}`);
